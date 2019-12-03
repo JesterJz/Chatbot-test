@@ -1,26 +1,6 @@
-
-/**
- * Copyright 2017-present, Facebook, Inc. All rights reserved.
- *
- * This source code is licensed under the license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * Messenger Platform Quick Start Tutorial
- *
- * This is the completed code for the Messenger Platform quick start tutorial
- *
- * https://developers.facebook.com/docs/messenger-platform/getting-started/quick-start/
- *
- * To run this code, you must do the following:
- *
- * 1. Deploy this code to a server running Node.js
- * 2. Run `npm install`
- * 3. Update the VERIFY_TOKEN
- * 4. Add your PAGE_ACCESS_TOKEN to your environment vars
- *
- */
-
 'use strict';
+var async = require("asyncawait/async");
+var await = require("asyncawait/await");
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 // Imports dependencies and set up http server
 const 
@@ -30,8 +10,11 @@ const
   app = express().use(body_parser.json()); // creates express http server
 
 // Sets server port and logs message on success
-app.listen(process.env.PORT || 1338, () => console.log('webhook is listening'));
+app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 
+app.get('/', (req, res) => {  
+  res.send("Server chạy ngon lành.");
+ });
 // Accepts POST requests at /webhook endpoint
 app.post('/webhook', (req, res) => {  
 
@@ -101,16 +84,44 @@ app.get('/webhook', (req, res) => {
 });
 
 function handleMessage(sender_psid, received_message) {
-  let response;
-  
+ let response;
   // Checks if the message contains text
-  if (received_message.text) {    
+  if (received_message.text) 
+  {    
     // Create the payload for a basic text message, which
     // will be added to the body of our request to the Send API
+    if(received_message.text == "help")
+    {
     response = {
-      "text": `You sent the message: "${received_message.text}". Now send me an attachment!`
+        "text" : `Dưới đây là những chức năng tôi có thể giúp bạn :
+        1. Thông tin về chủ tôi
+        2. Tra cứu giá vàng
+        3. Tra cứu thời tiết
+        4. Tin tức về Bitcoin
+        5. Xem và đặt lịch những sân bóng mini của cũng tôi.
+        Cảm ơn ! 😉`
+                }
+        callSendAPI(sender_psid, response); 
     }
-  } else if (received_message.attachments) {
+    else if (received_message.text == "hello") {
+              async(() => {
+          var getname = await (getSenderName(sender_psid));
+         response = {
+            "text": `Chào ${getname.last_name} ${getname.first_name},bạn cần gì ở tôi! \n - Bạn có thể gõ "help" để biết thêm các chức năng của tôi nhá`
+            }
+            callSendAPI(sender_psid, response); 
+      })();
+    }
+    else
+    {
+        response = {
+            "text" : `Bạn nói là: "${received_message.text}".Xin lỗi bạn bot còn nhỏ dại nên không hiểu. Bạn bấm gõ help xem? 😊😊😊 `
+        }
+        callSendAPI(sender_psid, response); 
+    }
+  }
+  else if (received_message.attachments) 
+  {
     // Get the URL of the message attachment
     let attachment_url = received_message.attachments[0].payload.url;
     response = {
@@ -138,10 +149,11 @@ function handleMessage(sender_psid, received_message) {
         }
       }
     }
+    callSendAPI(sender_psid, response);
   } 
   
   // Send the response message
-  callSendAPI(sender_psid, response);    
+      
 }
 
 function handlePostback(sender_psid, received_postback) {
@@ -157,8 +169,26 @@ function handlePostback(sender_psid, received_postback) {
     response = { "text": "Oops, try sending another image." }
   }
   // Send the message to acknowledge the postback
-  callSendAPI(sender_psid, response);
+  callSendAPI(sender_psid, response); 
 }
+ function  getSenderName(senderId) {
+        return new Promise((resolve, reject) => {
+                request({
+                    url: `https://graph.facebook.com/v2.6/${senderId}`,
+                    qs: {
+                        access_token: "EAAD0iXJrxfoBAPpIi87RT1xEZCUrqvE8sHyO7ZBX9ZAJuFczgAwPKaDhpkBwqcKBMcsEZAAFZBCldi05kqZAKn7Mvx4MZCeT2YqqRcwZCZA8ukSTULZATw4NM1KPQJNtGjatU0tJHnjWRjoMKNUPX0nUZBqrYlaRRiAS0qoG3BbZCiKLrAZBpZB875qwjwfDsNlPiBnUIZD"
+                    },
+                    method: 'GET',
+
+                }, function(error, response, body) {
+                    var person = JSON.parse(body);
+                    resolve({
+                         first_name: person.first_name,
+                        last_name : person.last_name
+                    });
+                });
+            });
+    }
 
 function callSendAPI(sender_psid, response) {
   // Construct the message body
@@ -172,7 +202,7 @@ function callSendAPI(sender_psid, response) {
   // Send the HTTP request to the Messenger Platform
   request({
     "uri": "https://graph.facebook.com/v2.6/me/messages",
-    "qs": { "access_token": "EAAcnLi6tzAABAIjSv3w1wDF63ZBGe4C19t2OyWmZBK8IpESsTNQKvJZCCLEKoMZAxxXba4k86KKAkfwLZAnQbYB2ZBTkP1f970mhFKCW0ZBzHawnzF5tNAoY63iBj8LVkTEbcIKwLwGzJ6BKczfBHh0x82lddQt53hYlPZCPGIOtwlcJ5GvuJfaenrJq25ZAFfSoZD" },
+    "qs": { "access_token": "EAAD0iXJrxfoBAPpIi87RT1xEZCUrqvE8sHyO7ZBX9ZAJuFczgAwPKaDhpkBwqcKBMcsEZAAFZBCldi05kqZAKn7Mvx4MZCeT2YqqRcwZCZA8ukSTULZATw4NM1KPQJNtGjatU0tJHnjWRjoMKNUPX0nUZBqrYlaRRiAS0qoG3BbZCiKLrAZBpZB875qwjwfDsNlPiBnUIZD" },
     "method": "POST",
     "json": request_body
   }, (err, res, body) => {
