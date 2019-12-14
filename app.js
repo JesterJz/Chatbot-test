@@ -1,4 +1,7 @@
 'use strict';
+var bot = require("./facebook_bot/bot");
+// var util = require("./facebook_bot/utilities");
+
 var async = require("asyncawait/async");
 var await = require("asyncawait/await");
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
@@ -85,40 +88,25 @@ app.get('/webhook', (req, res) => {
 
 function handleMessage(sender_psid, received_message) {
  let response;
-  // Checks if the message contains text
   if (received_message.text) 
   {    
-    // Create the payload for a basic text message, which
-    // will be added to the body of our request to the Send API
-    if(received_message.text == "help")
-    {
-    response = {
-        "text" : `Dưới đây là những chức năng tôi có thể giúp bạn :
-        1. Thông tin về chủ tôi
-        2. Tra cứu giá vàng
-        3. Tra cứu thời tiết
-        4. Tin tức về Bitcoin
-        5. Xem và đặt lịch những sân bóng mini của cũng tôi.
-        Cảm ơn ! 😉`
-                }
-        callSendAPI(sender_psid, response); 
-    }
-    else if (received_message.text == "hello") {
-              async(() => {
-          var getname = await (getSenderName(sender_psid));
-         response = {
-            "text": `Chào ${getname.last_name} ${getname.first_name},bạn cần gì ở tôi! \n - Bạn có thể gõ "help" để biết thêm các chức năng của tôi nhá`
-            }
-            callSendAPI(sender_psid, response); 
-      })();
-    }
-    else
-    {
-        response = {
-            "text" : `Bạn nói là: "${received_message.text}".Xin lỗi bạn bot còn nhỏ dại nên không hiểu. Bạn bấm gõ help xem? 😊😊😊 `
-        }
-        callSendAPI(sender_psid, response); 
-    }
+    // if(received_message.text == "help")
+    // {
+    // response = {
+    //     "text" : `Dưới đây là những chức năng tôi có thể giúp bạn :
+    //     1. Thông tin về chủ tôi
+    //     2. Tra cứu giá vàng
+    //     3. Tra cứu thời tiết
+    //     4. Tin tức về Bitcoin
+    //     5. Xem và đặt lịch những sân bóng mini của cũng tôi.
+    //     Cảm ơn ! 😉`
+    //             }
+    //     callSendAPI(sender_psid, response); 
+    // }
+    // else
+    // {
+       bot.bot_reply(sender_psid,received_message.text);
+    // }
   }
   else if (received_message.attachments) 
   {
@@ -171,25 +159,6 @@ function handlePostback(sender_psid, received_postback) {
   // Send the message to acknowledge the postback
   callSendAPI(sender_psid, response); 
 }
- function  getSenderName(senderId) {
-        return new Promise((resolve, reject) => {
-                request({
-                    url: `https://graph.facebook.com/v2.6/${senderId}`,
-                    qs: {
-                        access_token: "EAAD0iXJrxfoBAPpIi87RT1xEZCUrqvE8sHyO7ZBX9ZAJuFczgAwPKaDhpkBwqcKBMcsEZAAFZBCldi05kqZAKn7Mvx4MZCeT2YqqRcwZCZA8ukSTULZATw4NM1KPQJNtGjatU0tJHnjWRjoMKNUPX0nUZBqrYlaRRiAS0qoG3BbZCiKLrAZBpZB875qwjwfDsNlPiBnUIZD"
-                    },
-                    method: 'GET',
-
-                }, function(error, response, body) {
-                    var person = JSON.parse(body);
-                    resolve({
-                         first_name: person.first_name,
-                        last_name : person.last_name
-                    });
-                });
-            });
-    }
-
 function callSendAPI(sender_psid, response) {
   // Construct the message body
   let request_body = {
