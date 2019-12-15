@@ -2,7 +2,7 @@
 const request = require('request');
 class getapiFB{
     constructor(){
-        this._token = "EAAD0iXJrxfoBAPpIi87RT1xEZCUrqvE8sHyO7ZBX9ZAJuFczgAwPKaDhpkBwqcKBMcsEZAAFZBCldi05kqZAKn7Mvx4MZCeT2YqqRcwZCZA8ukSTULZATw4NM1KPQJNtGjatU0tJHnjWRjoMKNUPX0nUZBqrYlaRRiAS0qoG3BbZCiKLrAZBpZB875qwjwfDsNlPiBnUIZD";
+        this._token = "";
     }
  getSenderName(senderId) {
     return new Promise((resolve, reject) => {
